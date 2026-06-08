@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_navigation.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +21,7 @@ class BellPepperApp extends StatelessWidget {
           elevation: 0,
         ),
       ),
-      home: HomeScreen(),
+      home: MainNavigation(),
     );
   }
 }

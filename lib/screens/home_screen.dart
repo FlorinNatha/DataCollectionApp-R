@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'add_sample_screen.dart';
-import 'records_screen.dart';
 import '../services/export_service.dart';
 import '../services/database_service.dart';
 
@@ -52,35 +50,34 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(fontSize: 18, color: Colors.grey[600]),
             ),
             SizedBox(height: 40),
-            ElevatedButton.icon(
-              onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AddSampleScreen()),
-                );
-                _loadStats();
-              },
-              icon: Icon(Icons.add_a_photo),
-              label: Text('ADD NEW SAMPLE'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green[600],
-                padding: EdgeInsets.symmetric(vertical: 15),
-              ),
+            Text(
+              'Use the bottom navigation to:',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
-            SizedBox(height: 15),
-            OutlinedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RecordsScreen()),
-                ).then((_) => _loadStats());
-              },
-              icon: Icon(Icons.list_alt),
-              label: Text('VIEW ALL RECORDS'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.green[800],
-                side: BorderSide(color: Colors.green[800]!),
-                padding: EdgeInsets.symmetric(vertical: 15),
+            SizedBox(height: 20),
+            Card(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.add_a_photo, color: Colors.green[700], size: 24),
+                        SizedBox(width: 10),
+                        Expanded(child: Text('Add Sample - Capture leaf photos & sensor data')),
+                      ],
+                    ),
+                    SizedBox(height: 15),
+                    Row(
+                      children: [
+                        Icon(Icons.list_alt, color: Colors.green[700], size: 24),
+                        SizedBox(width: 10),
+                        Expanded(child: Text('Records - View all collected samples')),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
             SizedBox(height: 40),

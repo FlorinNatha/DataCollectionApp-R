@@ -231,17 +231,10 @@ class _HomeScreenState extends State<HomeScreen> {
             Text('Environmental & Soil Data', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey[900])),
             SizedBox(height: 12),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildEnvStat('Moisture', _formatSensor(_avgMoisture), '%'),
                 _buildEnvStat('Temp', _formatSensor(_avgTemp), '°C'),
                 _buildEnvStat('pH', _formatSensor(_avgPH), ''),
-              ],
-            ),
-            SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
                 _buildEnvStat('EC', _formatSensor(_avgEC), 'ms/cm'),
               ],
             ),
@@ -252,20 +245,22 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildEnvStat(String label, String value, String unit) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(label, style: TextStyle(fontSize: 13, color: Colors.grey[700])),
-        SizedBox(height: 6),
-        RichText(
-          text: TextSpan(
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(label, style: TextStyle(fontSize: 13, color: Colors.grey[700])),
+          SizedBox(height: 6),
+          Wrap(
+            alignment: WrapAlignment.center,
             children: [
-              TextSpan(text: value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green[800])),
-              TextSpan(text: unit, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+              Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green[800])),
+              if (unit.isNotEmpty)
+                Text(unit, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

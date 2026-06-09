@@ -15,6 +15,7 @@ class _AddSampleScreenState extends State<AddSampleScreen> {
   final _formKey = GlobalKey<FormState>();
   File? _image;
   final picker = ImagePicker();
+  bool _isSaving = false;
 
   // Form controllers
   String _diseaseLabel = 'Bacterial Spot';
@@ -49,42 +50,72 @@ class _AddSampleScreenState extends State<AddSampleScreen> {
 
   Future<void> _saveSample() async {
     if (_formKey.currentState!.validate() && _image != null) {
-      // 1. Save image to local app folder
-      final directory = await getApplicationDocumentsDirectory();
-      final imagesDir = await Directory('${directory.path}/images').create();
-      final String fileName = 'img_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final File localImage = await _image!.copy('${imagesDir.path}/$fileName');
+      setState(() => _isSaving = true);
 
-      // 2. Create sample object
-      final sample = Sample(
-        filename: fileName,
-        diseaseLabel: _diseaseLabel,
-        stage: _stage,
-        n: double.parse(_nController.text),
-        p: double.parse(_pController.text),
-        k: double.parse(_kController.text),
-        ph: double.parse(_phController.text),
-        ec: double.parse(_ecController.text),
-        moisture: double.parse(_moistureController.text),
-        temp: double.parse(_tempController.text),
-        location: _locationController.text,
-        date: DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()),
-        notes: _notesController.text,
-      );
+      try {
+        // 1. Save image to local app folder
+        final directory = await getApplicationDocumentsDirectory();
+        final imagesDir = await Directory('${directory.path}/images').create();
+        final String fileName = 'img_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final File localImage = await _image!.copy('${imagesDir.path}/$fileName');
 
-      // 3. Save to database
-      await DatabaseService().insertSample(sample);
+        // 2. Parse and validate sensor values
+        double n, p, k, ph, ec, moisture, temp;
+        try {
+          n = double.parse(_nController.text);
+          p = double.parse(_pController.text);
+          k = double.parse(_kController.text);
+          ph = double.parse(_phController.text);
+          ec = double.parse(_ecController.text);
+          moisture = double.parse(_moistureController.text);
+          temp = double.parse(_tempController.text);
+        } catch (e) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Invalid sensor value. Please check your inputs.')),
+          );
+          setState(() => _isSaving = false);
+          return;
+        }
 
-      if (!mounted) return;
+        // 3. Create sample object
+        final sample = Sample(
+          filename: fileName,
+          diseaseLabel: _diseaseLabel,
+          stage: _stage,
+          n: n,
+          p: p,
+          k: k,
+          ph: ph,
+          ec: ec,
+          moisture: moisture,
+          temp: temp,
+          location: _locationController.text,
+          date: DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()),
+          notes: _notesController.text,
+        );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Sample saved successfully!')),
-      );
-      Navigator.pop(context);
+        // 4. Save to database
+        await DatabaseService().insertSample(sample);
+
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Sample saved successfully!'), backgroundColor: Colors.green[700]),
+        );
+        Navigator.pop(context);
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving sample: ${e.toString()}'), backgroundColor: Colors.red[700]),
+        );
+      } finally {
+        if (mounted) setState(() => _isSaving = false);
+      }
     } else if (_image == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please take a photo first')),
+        SnackBar(content: Text('Please take a photo first'), backgroundColor: Colors.orange[700]),
       );
     }
   }
@@ -92,7 +123,10 @@ class _AddSampleScreenState extends State<AddSampleScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('New Sample')),
+      appBar: AppBar(
+        title: Text('New Sample'),
+        backgroundColor: Colors.green[700],
+      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Form(
@@ -220,7 +254,15 @@ class _AddSampleScreenState extends State<AddSampleScreen> {
       controller: controller,
       keyboardType: TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(labelText: label),
-      validator: (v) => v!.isEmpty ? 'Required' : null,
+      validator: (v) {
+        if (v!.isEmpty) return 'Required';
+        try {
+          double.parse(v);
+        } catch (e) {
+          return 'Enter a valid number';
+        }
+        return null;
+      },
     );
   }
 

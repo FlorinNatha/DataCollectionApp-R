@@ -30,7 +30,10 @@ class _RecordsScreenState extends State<RecordsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Collected Records')),
+      appBar: AppBar(
+        title: Text('Collected Records'),
+        backgroundColor: Colors.green[700],
+      ),
       body: FutureBuilder<List<Sample>>(
         future: _samplesFuture,
         builder: (context, snapshot) {
@@ -38,32 +41,60 @@ class _RecordsScreenState extends State<RecordsScreen> {
             return Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No records found. Start collecting!'));
+            return Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.inbox, size: 80, color: Colors.green[200]),
+                    SizedBox(height: 20),
+                    Text(
+                      'No records yet',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey[900]),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'Tap Add Sample to start collecting bell pepper data with image and sensor values.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                    ),
+                  ],
+                ),
+              ),
+            );
           }
 
           final samples = snapshot.data!;
           return ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             itemCount: samples.length,
             itemBuilder: (context, index) {
               final sample = samples[index];
               return Card(
-                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                margin: EdgeInsets.only(bottom: 12),
+                elevation: 2,
                 child: ListTile(
-                  leading: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      image: DecorationImage(
-                        image: FileImage(File('$_imagePath${sample.filename}')),
+                  contentPadding: EdgeInsets.all(12),
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      width: 60,
+                      height: 60,
+                      color: Colors.grey[200],
+                      child: Image.file(
+                        File('$_imagePath${sample.filename}'),
                         fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Icon(Icons.broken_image, color: Colors.grey[500]),
                       ),
                     ),
                   ),
-                  title: Text(sample.diseaseLabel, style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text('${sample.location} | ${sample.date}'),
+                  title: Text(sample.diseaseLabel, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[900])),
+                  subtitle: Text('${sample.location} • ${sample.date}', style: TextStyle(color: Colors.grey[700])),
                   trailing: IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red[300]),
+                    icon: Icon(Icons.delete, color: Colors.red[400]),
                     onPressed: () => _confirmDelete(sample),
                   ),
                   onTap: () => _showDetails(sample),

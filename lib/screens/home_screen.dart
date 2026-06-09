@@ -16,6 +16,10 @@ class _HomeScreenState extends State<HomeScreen> {
   double _avgN = 0;
   double _avgP = 0;
   double _avgK = 0;
+  double _avgMoisture = 0;
+  double _avgTemp = 0;
+  double _avgPH = 0;
+  double _avgEC = 0;
   String _lastSampleDate = 'No samples yet';
 
   @override
@@ -30,12 +34,20 @@ class _HomeScreenState extends State<HomeScreen> {
     double totalN = 0;
     double totalP = 0;
     double totalK = 0;
+    double totalMoisture = 0;
+    double totalTemp = 0;
+    double totalPH = 0;
+    double totalEC = 0;
 
     for (final sample in samples) {
       counts[sample.diseaseLabel] = (counts[sample.diseaseLabel] ?? 0) + 1;
       totalN += sample.n;
       totalP += sample.p;
       totalK += sample.k;
+      totalMoisture += sample.moisture;
+      totalTemp += sample.temp;
+      totalPH += sample.ph;
+      totalEC += sample.ec;
     }
 
     setState(() {
@@ -44,6 +56,10 @@ class _HomeScreenState extends State<HomeScreen> {
       _avgN = samples.isNotEmpty ? totalN / samples.length : 0;
       _avgP = samples.isNotEmpty ? totalP / samples.length : 0;
       _avgK = samples.isNotEmpty ? totalK / samples.length : 0;
+      _avgMoisture = samples.isNotEmpty ? totalMoisture / samples.length : 0;
+      _avgTemp = samples.isNotEmpty ? totalTemp / samples.length : 0;
+      _avgPH = samples.isNotEmpty ? totalPH / samples.length : 0;
+      _avgEC = samples.isNotEmpty ? totalEC / samples.length : 0;
       _lastSampleDate = samples.isNotEmpty
           ? DateFormat('MMM d, yyyy • h:mm a').format(DateTime.parse(samples.first.date))
           : 'No samples yet';
@@ -212,14 +228,21 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Average NPK values', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey[900])),
+            Text('Environmental & Soil Data', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey[900])),
             SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildSensorStat('N', _formatSensor(_avgN)),
-                _buildSensorStat('P', _formatSensor(_avgP)),
-                _buildSensorStat('K', _formatSensor(_avgK)),
+                _buildEnvStat('Moisture', _formatSensor(_avgMoisture), '%'),
+                _buildEnvStat('Temp', _formatSensor(_avgTemp), '°C'),
+                _buildEnvStat('pH', _formatSensor(_avgPH), ''),
+              ],
+            ),
+            SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildEnvStat('EC', _formatSensor(_avgEC), 'ms/cm'),
               ],
             ),
           ],
@@ -228,13 +251,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSensorStat(String label, String value) {
+  Widget _buildEnvStat(String label, String value, String unit) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[700])),
-        SizedBox(height: 8),
-        Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green[800])),
+        Text(label, style: TextStyle(fontSize: 13, color: Colors.grey[700])),
+        SizedBox(height: 6),
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(text: value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green[800])),
+              TextSpan(text: unit, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+            ],
+          ),
+        ),
       ],
     );
   }

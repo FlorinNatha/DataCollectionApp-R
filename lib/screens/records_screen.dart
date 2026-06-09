@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/sample.dart';
 import '../services/database_service.dart';
+import '../widgets/tree_loader.dart';
 
 class RecordsScreen extends StatefulWidget {
   @override
@@ -38,7 +39,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
         future: _samplesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: TreeLoader());
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Padding(

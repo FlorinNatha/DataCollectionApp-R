@@ -9,6 +9,11 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
+class _HomeScreenState extends State<HomeScreen> {
+  int _totalRecords = 0;
+  bool _isExporting = false;
+  Map<String, int> _diseaseCounts = {};
+
   final List<String> _diseaseClasses = [
     'Bacterial Spot',
     'Anthracnose',

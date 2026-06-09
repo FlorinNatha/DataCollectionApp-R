@@ -9,10 +9,14 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  int _totalRecords = 0;
-  bool _isExporting = false;
-  Map<String, int> _diseaseCounts = {};
+  final List<String> _diseaseClasses = [
+    'Bacterial Spot',
+    'Anthracnose',
+    'Powdery Mildew',
+    'Leaf Curl',
+    'Cercospora Leaf Spot',
+    'Healthy'
+  ];
   double _avgN = 0;
   double _avgP = 0;
   double _avgK = 0;
@@ -128,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(height: 20),
             _buildSensorCard(),
             SizedBox(height: 20),
-            _buildDiseaseBreakdownCard(),
+            _buildDiseaseCardsGrid(),
             SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: _isExporting ? null : _exportDataset,
@@ -260,6 +264,56 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDiseaseCardsGrid() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Samples by Disease',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[900]),
+        ),
+        SizedBox(height: 12),
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.2,
+          children: _diseaseClasses.map((disease) {
+            final count = _diseaseCounts[disease] ?? 0;
+            return _buildDiseaseCard(disease, count);
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDiseaseCard(String diseaseName, int count) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(14.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              count.toString(),
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.green[700]),
+            ),
+            SizedBox(height: 8),
+            Text(
+              diseaseName,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey[800]),
+            ),
+          ],
+        ),
       ),
     );
   }

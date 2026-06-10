@@ -24,7 +24,8 @@ class _RecordsScreenState extends State<RecordsScreen> {
     final dir = await getApplicationDocumentsDirectory();
     setState(() {
       _imagePath = '${dir.path}/images/';
-      _samplesFuture = DatabaseService().getSamples();
+      // Added a 2-second delay so you can see the animated tree loader!
+      _samplesFuture = Future.delayed(Duration(seconds: 2)).then((_) => DatabaseService().getSamples());
     });
   }
 
